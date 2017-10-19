@@ -30,15 +30,24 @@ impl fmt::Display for ParseError {
     }
 }
 
+fn pop_u8(data: &[u8]) -> (u8, &[u8]) {
+    (data[0], &data[1..])
+}
+
 fn pop_u16(data: &[u8]) -> (u16, &[u8]) {
     (((data[0] as u16) << 8) | data[1] as u16, &data[2..])
 }
 
 fn pop_u32(data: &[u8]) -> (u32, &[u8]) {
     (
-        ((data[0] as u32) << 24)
-            | ((data[1] as u32) << 16)
-            | ((data[2] as u32) << 8)
-            | data[3] as u32
-    , &data[4..])
+        ((data[0] as u32) << 24) | ((data[1] as u32) << 16) | ((data[2] as u32) << 8) | data[3] as u32,
+        &data[4..],
+    )
+}
+
+fn pop_u64(data: &[u8]) -> (u64, &[u8]) {
+    let (a, data) = pop_u32(data);
+    let (b, data) = pop_u32(data);
+
+    (((a as u64) << 32) | b as u64, data)
 }
