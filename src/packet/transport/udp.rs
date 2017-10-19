@@ -21,10 +21,10 @@ pub struct Parsed<'a> {
 impl<'a> Header {
     pub fn Parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
         if data.len() < UDP_HEADER_SIZE {
-            return Err(ParseError{reason: String::from("UDP packet too small")})
+            return Err(ParseError { reason: String::from("UDP packet too small") });
         }
 
-        let mut parsed = Parsed{..Default::default()};
+        let mut parsed = Parsed { ..Default::default() };
         let (source, data) = pop_u16(data);
         let (dest, data) = pop_u16(data);
         let (length, data) = pop_u16(data);
@@ -32,8 +32,13 @@ impl<'a> Header {
 
         // XXX: Verify checksum?
 
-        Ok(Parsed{
-            header: Header{source, dest, length, checksum},
+        Ok(Parsed {
+            header: Header {
+                source,
+                dest,
+                length,
+                checksum,
+            },
             data: data,
         })
     }

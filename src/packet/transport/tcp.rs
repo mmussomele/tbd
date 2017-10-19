@@ -4,7 +4,7 @@ use packet::pop_u32;
 
 const TCP_HEADER_MIN_SIZE: usize = 20;
 
-const NS_MASK:  u16 = 0b100000000;
+const NS_MASK: u16 = 0b100000000;
 const CWR_MASK: u16 = 0b010000000;
 const ECE_MASK: u16 = 0b001000000;
 const URG_MASK: u16 = 0b000100000;
@@ -45,10 +45,10 @@ pub struct Parsed<'a> {
 impl<'a> Header<'a> {
     pub fn Parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
         if data.len() < TCP_HEADER_MIN_SIZE {
-            return Err(ParseError{reason: String::from("TCP packet too small")})
+            return Err(ParseError { reason: String::from("TCP packet too small") });
         }
 
-        let mut parsed = Parsed{..Default::default()};
+        let mut parsed = Parsed { ..Default::default() };
         let (source, data) = pop_u16(data);
         let (dest, data) = pop_u16(data);
         let (seq, data) = pop_u32(data);
@@ -61,10 +61,10 @@ impl<'a> Header<'a> {
 
         // offset is the length of the header in words.
         // The first 5 words have already been popped, so the end of the header is 4*(offset-5).
-        let header_end = 4*((data_offset as usize) - 5);
+        let header_end = 4 * ((data_offset as usize) - 5);
 
         if data.len() < header_end {
-            return Err(ParseError{reason: String::from("TCP packet too small")})
+            return Err(ParseError { reason: String::from("TCP packet too small") });
         }
 
         let options = &data[..header_end];
@@ -83,12 +83,22 @@ impl<'a> Header<'a> {
 
         // XXX: Verify checksum?
 
-        Ok(Parsed{
-            header: Header{
-                source, dest,
-                seq, ack_no,
+        Ok(Parsed {
+            header: Header {
+                source,
+                dest,
+                seq,
+                ack_no,
                 data_offset,
-                ns, cwr, ece, urg, ack, psh, rst, syn, fin,
+                ns,
+                cwr,
+                ece,
+                urg,
+                ack,
+                psh,
+                rst,
+                syn,
+                fin,
                 window_size,
                 checksum,
                 urgent_ptr,
