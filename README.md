@@ -1,4 +1,4 @@
-# tbd (To be delivered)
+# tbd (to be delivered)
 
 tbd is a network simulator, with the ambitious but likely impractical goal of being able to simulate every part of a classic network, sending a packet from host to host across an imaginary internet.
 
