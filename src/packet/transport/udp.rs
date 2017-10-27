@@ -1,8 +1,5 @@
 use packet::ParseError;
 use packet::pop_u16;
-use packet::pop_u32;
-
-const UDP_HEADER_SIZE: usize = 8;
 
 #[derive(Default)]
 pub struct Header {
@@ -19,8 +16,10 @@ pub struct Parsed<'a> {
 }
 
 impl<'a> Header {
-    pub fn Parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
-        if data.len() < UDP_HEADER_SIZE {
+    const UDP_HEADER_SIZE: usize = 8;
+
+    pub fn parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
+        if data.len() < Header::UDP_HEADER_SIZE {
             return Err(ParseError { reason: String::from("UDP packet too small") });
         }
 

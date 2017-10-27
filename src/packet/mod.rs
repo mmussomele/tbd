@@ -39,10 +39,10 @@ fn pop_u16(data: &[u8]) -> (u16, &[u8]) {
 }
 
 fn pop_u32(data: &[u8]) -> (u32, &[u8]) {
-    (
-        ((data[0] as u32) << 24) | ((data[1] as u32) << 16) | ((data[2] as u32) << 8) | data[3] as u32,
-        &data[4..],
-    )
+    let (a, data) = pop_u16(data);
+    let (b, data) = pop_u16(data);
+
+    (((a as u32) << 16) | b as u32, data)
 }
 
 fn pop_u64(data: &[u8]) -> (u64, &[u8]) {
@@ -50,4 +50,11 @@ fn pop_u64(data: &[u8]) -> (u64, &[u8]) {
     let (b, data) = pop_u32(data);
 
     (((a as u64) << 32) | b as u64, data)
+}
+
+fn pop_u128(data: &[u8]) -> (u128, &[u8]) {
+    let (a, data) = pop_u64(data);
+    let (b, data) = pop_u64(data);
+
+    (((a as u128) << 64) | b as u128, data)
 }

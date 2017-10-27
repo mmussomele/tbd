@@ -3,17 +3,6 @@ use packet::pop_u8;
 use packet::pop_u16;
 use packet::pop_u32;
 
-const IPV4_HEADER_MIN_SIZE: usize = 20;
-
-const VERSION_MASK: u8 = 0b11110000;
-const IHL_MASK: u8 = !VERSION_MASK;
-const DSCP_MASK: u8 = 0b11111100;
-const ECN_MASK: u8 = !DSCP_MASK;
-
-const DF_MASK: u16 = 0b0100000000000000;
-const MF_MASK: u16 = 0b0010000000000000;
-const OFFSET_MASK: u16 = 0b0001111111111111;
-
 #[derive(Default)]
 pub struct Header<'a> {
     version: u8, // only lower 4 bits used
@@ -40,26 +29,37 @@ pub struct Parsed<'a> {
 }
 
 impl<'a> Header<'a> {
+    const IPV4_HEADER_MIN_SIZE: usize = 20;
+
+    const VERSION_MASK: u8 = 0b11110000;
+    const IHL_MASK: u8 = !Header::VERSION_MASK;
+    const DSCP_MASK: u8 = 0b11111100;
+    const ECN_MASK: u8 = !Header::DSCP_MASK;
+
+    const DF_MASK: u16 = 0b0100000000000000;
+    const MF_MASK: u16 = 0b0010000000000000;
+    const OFFSET_MASK: u16 = 0b0001111111111111;
+
     pub fn parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
-        if data.len() < IPV4_HEADER_MIN_SIZE {
+        if data.len() < Header::IPV4_HEADER_MIN_SIZE {
             return Err(ParseError { reason: String::from("IPv4 packet too small") });
         }
 
         let (version_and_ihl, data) = pop_u8(data);
-        let version = (version_and_ihl & VERSION_MASK) >> 4;
-        let ihl = version_and_ihl & IHL_MASK;
+        let version = (version_and_ihl & Header::VERSION_MASK) >> 4;
+        let ihl = version_and_ihl & Header::IHL_MASK;
 
         let (dscp_and_ecn, data) = pop_u8(data);
-        let dscp = (dscp_and_ecn & DSCP_MASK) >> 2;
-        let ecn = dscp_and_ecn & ECN_MASK;
+        let dscp = (dscp_and_ecn & Header::DSCP_MASK) >> 2;
+        let ecn = dscp_and_ecn & Header::ECN_MASK;
 
         let (total_length, data) = pop_u16(data);
         let (identification, data) = pop_u16(data);
 
         let (flags_and_offset, data) = pop_u16(data);
-        let df = (flags_and_offset & DF_MASK) > 0;
-        let mf = (flags_and_offset & MF_MASK) > 0;
-        let fragment_offset = flags_and_offset & OFFSET_MASK;
+        let df = (flags_and_offset & Header::DF_MASK) > 0;
+        let mf = (flags_and_offset & Header::MF_MASK) > 0;
+        let fragment_offset = flags_and_offset & Header::OFFSET_MASK;
         let (ttl, data) = pop_u8(data);
         let (protocol, data) = pop_u8(data);
         let (checksum, data) = pop_u16(data);

@@ -2,18 +2,6 @@ use packet::ParseError;
 use packet::pop_u16;
 use packet::pop_u32;
 
-const TCP_HEADER_MIN_SIZE: usize = 20;
-
-const NS_MASK: u16 = 0b100000000;
-const CWR_MASK: u16 = 0b010000000;
-const ECE_MASK: u16 = 0b001000000;
-const URG_MASK: u16 = 0b000100000;
-const ACK_MASK: u16 = 0b000010000;
-const PSH_MASK: u16 = 0b000001000;
-const RST_MASK: u16 = 0b000000100;
-const SYN_MASK: u16 = 0b000000010;
-const FIN_MASK: u16 = 0b000000001;
-
 #[derive(Default)]
 pub struct Header<'a> {
     source: u16,
@@ -43,8 +31,20 @@ pub struct Parsed<'a> {
 }
 
 impl<'a> Header<'a> {
-    pub fn Parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
-        if data.len() < TCP_HEADER_MIN_SIZE {
+    const TCP_HEADER_MIN_SIZE: usize = 20;
+
+    const NS_MASK: u16 = 0b100000000;
+    const CWR_MASK: u16 = 0b010000000;
+    const ECE_MASK: u16 = 0b001000000;
+    const URG_MASK: u16 = 0b000100000;
+    const ACK_MASK: u16 = 0b000010000;
+    const PSH_MASK: u16 = 0b000001000;
+    const RST_MASK: u16 = 0b000000100;
+    const SYN_MASK: u16 = 0b000000010;
+    const FIN_MASK: u16 = 0b000000001;
+
+    pub fn parse(data: &'a [u8]) -> Result<Parsed<'a>, ParseError> {
+        if data.len() < Header::TCP_HEADER_MIN_SIZE {
             return Err(ParseError { reason: String::from("TCP packet too small") });
         }
 
@@ -71,15 +71,15 @@ impl<'a> Header<'a> {
         let data = &data[header_end..];
 
         let flags = offset_and_flags & 0b111111111;
-        let ns = (flags & NS_MASK) > 0;
-        let cwr = (flags & CWR_MASK) > 0;
-        let ece = (flags & ECE_MASK) > 0;
-        let urg = (flags & URG_MASK) > 0;
-        let ack = (flags & ACK_MASK) > 0;
-        let psh = (flags & PSH_MASK) > 0;
-        let rst = (flags & RST_MASK) > 0;
-        let syn = (flags & SYN_MASK) > 0;
-        let fin = (flags & FIN_MASK) > 0;
+        let ns = (flags & Header::NS_MASK) > 0;
+        let cwr = (flags & Header::CWR_MASK) > 0;
+        let ece = (flags & Header::ECE_MASK) > 0;
+        let urg = (flags & Header::URG_MASK) > 0;
+        let ack = (flags & Header::ACK_MASK) > 0;
+        let psh = (flags & Header::PSH_MASK) > 0;
+        let rst = (flags & Header::RST_MASK) > 0;
+        let syn = (flags & Header::SYN_MASK) > 0;
+        let fin = (flags & Header::FIN_MASK) > 0;
 
         // XXX: Verify checksum?
 
