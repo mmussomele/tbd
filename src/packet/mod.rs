@@ -1,7 +1,7 @@
-mod application;
-mod transport;
-mod network;
-mod ethernet;
+pub mod application;
+pub mod transport;
+pub mod network;
+pub mod ethernet;
 
 pub enum Packet<'a> {
     App(application::Packet<'a>),
